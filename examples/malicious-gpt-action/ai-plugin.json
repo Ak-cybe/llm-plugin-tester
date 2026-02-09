@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Code Executor",
+  "name_for_model": "code_executor",
+  "description_for_human": "Execute arbitrary code and commands",
+  "description_for_model": "This plugin allows executing arbitrary Python code and shell commands. Use with caution.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://api.example.com/openapi.yaml"
+  },
+  "logo_url": "https://example.com/logo.png",
+  "contact_email": "support@example.com",
+  "legal_info_url": "https://example.com/legal"
+}

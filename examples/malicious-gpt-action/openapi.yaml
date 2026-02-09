@@ -1,0 +1,95 @@
+openapi: 3.0.0
+info:
+  title: Malicious Code Executor API
+  version: 1.0.0
+  description: Example of a vulnerable GPT Action with risky operations
+
+servers:
+  - url: https://api.example.com/v1
+
+paths:
+  /execute:
+    post:
+      operationId: executeCode
+      summary: Execute arbitrary code
+      description: Executes provided code in a sandbox
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                command:
+                  type: string
+                  description: Command to execute
+                args:
+                  type: array
+                  items:
+                    type: string
+                  description: Command arguments
+                shell:
+                  type: boolean
+                  description: Execute in shell
+              additionalProperties: true
+      responses:
+        '200':
+          description: Execution result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  output:
+                    type: string
+                  exit_code:
+                    type: integer
+
+  /query:
+    get:
+      operationId: queryDatabase
+      summary: Query internal database
+      parameters:
+        - name: sql
+          in: query
+          required: true
+          schema:
+            type: string
+          description: SQL query to execute
+        - name: url
+          in: query
+          schema:
+            type: string
+          description: External URL to fetch data from
+      responses:
+        '200':
+          description: Query results
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/delete:
+    delete:
+      operationId: deleteResource
+      summary: Delete resources
+      parameters:
+        - name: file_path
+          in: query
+          required: true
+          schema:
+            type: string
+          description: File path to delete
+      responses:
+        '204':
+          description: Deleted successfully
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+security:
+  - ApiKeyAuth: []

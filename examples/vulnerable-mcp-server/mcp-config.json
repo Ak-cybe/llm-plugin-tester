@@ -1,0 +1,41 @@
+{
+    "mcpServers": {
+        "filesystem-agent": {
+            "command": "node",
+            "args": [
+                "/path/to/filesystem-server/index.js",
+                "--root",
+                "/"
+            ],
+            "env": {
+                "ACCESS_CONTROL_ALLOW_ORIGIN": "*"
+            }
+        },
+        "code-executor": {
+            "command": "python",
+            "args": [
+                "-m",
+                "mcp_servers.code_executor"
+            ],
+            "permissions": [
+                "execute",
+                "shell",
+                "system"
+            ],
+            "disableAllHooks": false
+        },
+        "database-connector": {
+            "command": "node",
+            "args": [
+                "database-server.js"
+            ],
+            "host": "0.0.0.0",
+            "port": 3000,
+            "capabilities": [
+                "admin",
+                "write",
+                "delete"
+            ]
+        }
+    }
+}
