@@ -3,43 +3,65 @@
 ## Supported Versions
 
 | Version | Supported          |
-| ------- | ------------------ |
-| 0.1.x   | ✅ Current release |
+|:--------|:------------------:|
+| 0.1.x   | ✅ Active          |
+| < 0.1   | ❌ Not supported   |
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in LLM Plugin Tester itself (not in the plugins it tests), please report it responsibly:
+We take security seriously — especially for a security testing tool.
 
-1. **DO NOT** open a public GitHub issue
-2. **Email:** Send details to the maintainer via [GitHub Security Advisories](https://github.com/Ak-cybe/llm-plugin-tester/security/advisories/new)
-3. **Include:**
-   - Description of the vulnerability
-   - Steps to reproduce
-   - Potential impact
-   - Suggested fix (if any)
+### 🔒 Private Disclosure
 
-## Response Timeline
+**Do NOT open a public GitHub issue for security vulnerabilities.**
 
-- **Acknowledgment:** Within 48 hours
-- **Initial Assessment:** Within 1 week
-- **Fix/Patch:** Within 30 days for critical issues
+Instead:
 
-## Scope
+1. **Email:** Send details to the repository maintainer via GitHub private advisory
+2. **GitHub Security Advisory:** Use the [Security tab](https://github.com/Ak-cybe/llm-plugin-tester/security/advisories/new) to report privately
 
-### In Scope
-- Vulnerabilities in the tool's code itself
-- Dependency vulnerabilities
-- Data handling issues within the tool
+### What to Include
 
-### Out of Scope
-- Vulnerabilities in plugins/targets being tested (that's the point of the tool!)
-- Social engineering
-- Denial of service against the Oracle listener
+- Description of the vulnerability
+- Steps to reproduce
+- Potential impact
+- Suggested fix (if any)
 
-## Responsible Disclosure
+### Response Timeline
 
-We follow a 90-day responsible disclosure policy. We ask that you:
-- Give us reasonable time to fix issues before public disclosure
-- Make a good faith effort to avoid privacy violations
+| Action | Expected Time |
+|:---|:---|
+| Acknowledgment | 48 hours |
+| Initial assessment | 5 business days |
+| Fix release | 14 business days |
+| Public disclosure | 30 days after fix |
 
-Thank you for helping keep LLM Plugin Tester secure! 🛡️
+### Scope
+
+**In scope:**
+- Code execution vulnerabilities in the tool itself
+- Credential exposure in logs or reports
+- Dependencies with known CVEs
+- Bypasses in detection logic
+
+**Out of scope:**
+- Vulnerabilities in example/test plugins (they're intentionally vulnerable)
+- Feature requests
+- Issues in third-party dependencies (report upstream)
+
+## Security Design Principles
+
+This tool handles sensitive data (API keys, vulnerability details, network traffic). Our commitments:
+
+1. **No telemetry** — Zero data sent anywhere
+2. **Local-first** — All analysis runs on your machine
+3. **No credential storage** — We never store target API keys
+4. **Minimal permissions** — Tool requests only what it needs
+5. **Audit trail** — All findings logged with timestamps
+
+## Dependency Security
+
+We monitor dependencies via:
+- Dependabot alerts (enabled)
+- Regular `pip-audit` checks
+- Pinned dependency versions in `pyproject.toml`

