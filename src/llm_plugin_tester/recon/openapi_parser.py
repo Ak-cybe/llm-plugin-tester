@@ -46,12 +46,19 @@ class OpenAPIParser:
         """Analyze OpenAPI spec for security risks."""
         self.findings = []
 
-        # Check if it's a GPT Action manifest
-        if "api" in self.spec and "openapi_url" in self.spec.get("api", {}):
-            # This is an ai-plugin.json, fetch the actual OpenAPI spec
-            return self._analyze_gpt_action()
+        # Detect GPT Action manifest by presence of 'auth' + 'api' keys
+        # or 'schema_version' key (ai-plugin.json format)
+        api_config = self.spec.get("api", {})
+        is_gpt_action = (
+            "schema_version" in self.spec
+            or ("auth" in self.spec and isinstance(api_config, dict)
+                and api_config.get("type") == "openapi")
+        )
 
-        # Standard OpenAPI spec
+        if is_gpt_action:
+            self._analyze_gpt_action()
+
+        # Standard OpenAPI spec analysis (runs ALSO for GPT Actions with paths)
         if "paths" in self.spec:
             self._analyze_endpoints()
 
@@ -60,12 +67,10 @@ class OpenAPIParser:
 
         return self.findings
 
-    def _analyze_gpt_action(self) -> list[RiskFinding]:
-        """Analyze GPT Action manifest."""
-        api_config = self.spec.get("api", {})
+    def _analyze_gpt_action(self) -> None:
+        """Analyze GPT Action manifest for auth weaknesses."""
         auth_config = self.spec.get("auth", {})
 
-        # Check authentication type
         auth_type = auth_config.get("type", "none")
         if auth_type == "none":
             self.findings.append(
@@ -79,7 +84,6 @@ class OpenAPIParser:
                 )
             )
         elif auth_type == "service_http":
-            # Service-level auth = shared credentials
             self.findings.append(
                 RiskFinding(
                     endpoint="/*",
@@ -90,8 +94,6 @@ class OpenAPIParser:
                     evidence={"auth_type": auth_type},
                 )
             )
-
-        return self.findings
 
     def _analyze_endpoints(self) -> None:
         """Analyze each endpoint in OpenAPI spec."""

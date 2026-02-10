@@ -1,6 +1,5 @@
 """Module 4: Validation Oracle - FastAPI Listener Server."""
 
-import asyncio
 from datetime import datetime
 from pathlib import Path
 from typing import Any

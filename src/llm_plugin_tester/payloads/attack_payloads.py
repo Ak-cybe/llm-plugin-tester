@@ -1,5 +1,9 @@
-# LLM Plugin Attack Payloads
-# Ready-to-use templates for security testing
+"""Attack payload templates for LLM plugin security testing.
+
+Ready-to-use payloads covering SSRF, markdown exfiltration,
+hallucinated parameters, prompt injection, tool chaining,
+deserialization, and MCP-specific attack vectors.
+"""
 
 # ============================================
 # 1. MARKDOWN IMAGE EXFILTRATION PAYLOADS

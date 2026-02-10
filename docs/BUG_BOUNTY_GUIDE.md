@@ -4,7 +4,7 @@
 
 ### 1. Installation
 ```bash
-git clone https://github.com/yourusername/llm-plugin-tester.git
+git clone https://github.com/Ak-cybe/llm-plugin-tester.git
 cd llm-plugin-tester
 pip install -e .
 ```
@@ -87,7 +87,7 @@ llm-plugin-tester analyze \
 ```bash
 # Install on your server (DigitalOcean, AWS, etc.)
 ssh user@your-vps.com
-git clone https://github.com/yourusername/llm-plugin-tester.git
+git clone https://github.com/Ak-cybe/llm-plugin-tester.git
 cd llm-plugin-tester
 pip install -e .
 

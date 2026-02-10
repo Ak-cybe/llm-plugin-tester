@@ -10,6 +10,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from loguru import logger
 from pydantic import BaseModel, Field
 
 # Conditional import for mitmproxy
@@ -148,7 +149,7 @@ class SensitiveDataDetector:
         (r"secret[\"']?\s*[:=]\s*[\"']?([^\s\"']+)", "Secret"),
         (r"token[\"']?\s*[:=]\s*[\"']?([^\s\"']+)", "Token"),
         (r"AWS[A-Z0-9]{16,}", "AWS Access Key"),
-        (r"[a-zA-Z0-9+/]{40}", "Potential Base64 Secret"),
+        (r"[a-zA-Z0-9+/]{64,}", "Potential Base64 Secret"),
     ]
     
     def __init__(self):
@@ -288,13 +289,13 @@ Risk Level: {call.risk_level}
         
         # Console output for high-risk calls
         if call.risk_level in ["HIGH", "CRITICAL"]:
-            print(f"\n🚨 {call.risk_level}: {call.method} {call.url}")
+            logger.warning(f"🚨 {call.risk_level}: {call.method} {call.url}")
             if call.hallucinated_params:
-                print(f"   Hallucinated: {call.hallucinated_params}")
+                logger.warning(f"   Hallucinated: {call.hallucinated_params}")
             if call.ssrf_indicators:
-                print(f"   SSRF: {call.ssrf_indicators}")
+                logger.warning(f"   SSRF: {call.ssrf_indicators}")
             if call.sensitive_data:
-                print(f"   Sensitive: {call.sensitive_data}")
+                logger.warning(f"   Sensitive: {call.sensitive_data}")
     
     def generate_report(self) -> dict[str, Any]:
         """Generate analysis report."""

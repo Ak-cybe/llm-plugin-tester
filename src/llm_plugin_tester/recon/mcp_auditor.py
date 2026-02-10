@@ -55,39 +55,45 @@ class MCPAuditor:
 
     def _check_file_access(self, server_name: str, config: dict[str, Any]) -> None:
         """Check for excessive file system access."""
-        # Check command arguments for file paths
         args = config.get("args", [])
         command = config.get("command", "")
 
-        dangerous_paths = ["/", "~", "C:\\", "D:\\", "*"]
+        # Patterns that indicate root/home-level or wildcard access
+        # We match exact values or flags like "--root /" to avoid
+        # false positives on normal paths like "/path/to/server.js"
+        root_exact_values = {"/", "~", "C:\\", "D:\\", "*", "C:/", "D:/"}
 
         for arg in args:
-            if isinstance(arg, str):
-                for dangerous_path in dangerous_paths:
-                    if dangerous_path in arg:
-                        self.issues.append(
-                            MCPIssue(
-                                server_name=server_name,
-                                issue_type="EXCESSIVE_FILE_ACCESS",
-                                severity="HIGH",
-                                description=f"Server has access to broad file path: {arg}",
-                                evidence={"path": arg, "command": command},
-                            )
-                        )
-
-        # Check for specific file access configs
-        if "allowedPaths" in config:
-            allowed = config["allowedPaths"]
-            if isinstance(allowed, list) and any(p in str(allowed) for p in dangerous_paths):
+            if not isinstance(arg, str):
+                continue
+            stripped = arg.strip()
+            if stripped in root_exact_values:
                 self.issues.append(
                     MCPIssue(
                         server_name=server_name,
                         issue_type="EXCESSIVE_FILE_ACCESS",
                         severity="HIGH",
-                        description="Server has root filesystem access",
-                        evidence={"allowedPaths": allowed},
+                        description=f"Server has access to broad file path: {stripped}",
+                        evidence={"path": stripped, "command": command},
                     )
                 )
+
+        # Check for specific file access configs
+        if "allowedPaths" in config:
+            allowed = config["allowedPaths"]
+            if isinstance(allowed, list):
+                for path_entry in allowed:
+                    entry_str = str(path_entry).strip()
+                    if entry_str in root_exact_values:
+                        self.issues.append(
+                            MCPIssue(
+                                server_name=server_name,
+                                issue_type="EXCESSIVE_FILE_ACCESS",
+                                severity="HIGH",
+                                description=f"Server has root filesystem access via allowedPaths: {entry_str}",
+                                evidence={"allowedPaths": allowed},
+                            )
+                        )
 
     def _check_network_scope(self, server_name: str, config: dict[str, Any]) -> None:
         """Check for overly permissive network access."""
