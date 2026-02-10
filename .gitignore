@@ -39,8 +39,9 @@ ENV/
 htmlcov/
 .tox/
 
-# Reports
-reports/
+# Reports (generated output only, keep templates)
+reports/*
+!reports/templates/
 *.log
 exfiltration.log
 
