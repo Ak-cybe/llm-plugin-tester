@@ -21,7 +21,7 @@ Thank you for your interest in improving LLM Plugin Abuse Tester!
 
 #### Setup Development Environment
 ```bash
-git clone https://github.com/yourusername/llm-plugin-tester.git
+git clone https://github.com/Ak-cybe/llm-plugin-tester.git
 cd llm-plugin-tester
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate

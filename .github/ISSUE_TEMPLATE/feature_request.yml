@@ -1,0 +1,53 @@
+name: ✨ Feature Request
+description: Suggest a new feature or attack vector
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Got an idea? We'd love to hear it — especially new attack vectors!
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - New Attack Vector / Detector
+        - CLI Enhancement
+        - Report Generation
+        - Integration (mitmproxy, Promptfoo, etc.)
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the feature and its impact.
+      placeholder: |
+        I'd like to see detection for [attack type] because...
+    validations:
+      required: true
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Example / PoC
+      description: If applicable, show a payload, config, or expected output.
+      render: python
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any alternative approaches you've thought about?
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Willing to contribute?
+      options:
+        - label: I'd like to submit a PR for this feature

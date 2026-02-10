@@ -1,0 +1,60 @@
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gradient Defs -->
+  <defs>
+    <linearGradient id="grid-fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a" stop-opacity="1" />
+      <stop offset="100%" stop-color="#1e293b" stop-opacity="0" />
+    </linearGradient>
+    <linearGradient id="cyber-glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="50%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#ef4444" />
+    </linearGradient>
+    <filter id="text-shadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="400" fill="#0f172a" />
+  
+  <!-- Subtle Grid -->
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="1"/>
+  </pattern>
+  <rect width="1200" height="400" fill="url(#grid)" />
+  
+  <!-- Central Icon/Logo Area -->
+  <circle cx="200" cy="200" r="80" stroke="url(#cyber-glow)" stroke-width="4" fill="#1e293b" />
+  <text x="200" y="235" font-family="monospace" font-size="100" fill="#fff" text-anchor="middle" font-weight="bold">AI</text>
+  
+  <!-- Connection Lines -->
+  <path d="M 280 200 L 400 200" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,5">
+    <animate attributeName="stroke-dashoffset" from="100" to="0" dur="2s" repeatCount="indefinite" />
+  </path>
+  
+  <!-- Title Text -->
+  <text x="420" y="160" font-family="'Segoe UI', sans-serif" font-size="60" fill="#fff" font-weight="800" filter="url(#text-shadow)">
+    LLM PLUGIN TESTER
+  </text>
+  
+  <!-- Subtitle / Tagline -->
+  <text x="420" y="210" font-family="'Segoe UI', sans-serif" font-size="30" fill="#94a3b8" font-weight="400">
+    Automated Security Auditing for the AI Era
+  </text>
+  
+  <!-- Feature Pills -->
+  <g transform="translate(420, 260)">
+    <!-- Pill 1 -->
+    <rect x="0" y="0" width="160" height="40" rx="20" fill="#1e293b" stroke="#3b82f6" stroke-width="1" />
+    <text x="80" y="25" fill="#3b82f6" font-family="monospace" font-size="14" text-anchor="middle">GPT Actions</text>
+    
+    <!-- Pill 2 -->
+    <rect x="180" y="0" width="160" height="40" rx="20" fill="#1e293b" stroke="#8b5cf6" stroke-width="1" />
+    <text x="260" y="25" fill="#8b5cf6" font-family="monospace" font-size="14" text-anchor="middle">MCP Servers</text>
+    
+    <!-- Pill 3 -->
+    <rect x="360" y="0" width="160" height="40" rx="20" fill="#1e293b" stroke="#ef4444" stroke-width="1" />
+    <text x="440" y="25" fill="#ef4444" font-family="monospace" font-size="14" text-anchor="middle">Exfiltration</text>
+  </g>
+</svg>
