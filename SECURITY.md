@@ -2,66 +2,53 @@
 
 ## Supported Versions
 
-| Version | Supported          |
-|:--------|:------------------:|
-| 0.1.x   | ✅ Active          |
-| < 0.1   | ❌ Not supported   |
+| Version | Supported |
+|---------|-----------|
+| 0.1.x   | ✅ Active  |
 
 ## Reporting a Vulnerability
 
-We take security seriously — especially for a security testing tool.
+**Do NOT open a public issue for security vulnerabilities.**
 
-### 🔒 Private Disclosure
+If you discover a security vulnerability in `llm-plugin-tester`, please report it responsibly:
 
-**Do NOT open a public GitHub issue for security vulnerabilities.**
-
-Instead:
-
-1. **Email:** Send details to the repository maintainer via GitHub private advisory
-2. **GitHub Security Advisory:** Use the [Security tab](https://github.com/Ak-cybe/llm-plugin-tester/security/advisories/new) to report privately
-
-### What to Include
-
-- Description of the vulnerability
-- Steps to reproduce
-- Potential impact
-- Suggested fix (if any)
+1. **Email:** Send details to the maintainer via GitHub private message or email
+2. **Include:**
+   - Description of the vulnerability
+   - Steps to reproduce
+   - Potential impact
+   - Suggested fix (if any)
 
 ### Response Timeline
 
-| Action | Expected Time |
-|:---|:---|
+| Action | Timeframe |
+|--------|-----------|
 | Acknowledgment | 48 hours |
-| Initial assessment | 5 business days |
-| Fix release | 14 business days |
-| Public disclosure | 30 days after fix |
+| Initial assessment | 7 days |
+| Fix + release | 30 days |
 
-### Scope
+## Scope
 
-**In scope:**
-- Code execution vulnerabilities in the tool itself
-- Credential exposure in logs or reports
-- Dependencies with known CVEs
-- Bypasses in detection logic
+### In Scope
+- Vulnerabilities in `llm-plugin-tester` code itself
+- Dependency vulnerabilities affecting the project
+- Security issues in example configurations
 
-**Out of scope:**
-- Vulnerabilities in example/test plugins (they're intentionally vulnerable)
-- Feature requests
-- Issues in third-party dependencies (report upstream)
+### Out of Scope
+- Vulnerabilities found **using** this tool in third-party systems (report those to the respective vendors)
+- Social engineering attacks
+- Physical attacks
 
-## Security Design Principles
+## Responsible Use
 
-This tool handles sensitive data (API keys, vulnerability details, network traffic). Our commitments:
+This tool is designed for **authorized security testing only**. Users must:
 
-1. **No telemetry** — Zero data sent anywhere
-2. **Local-first** — All analysis runs on your machine
-3. **No credential storage** — We never store target API keys
-4. **Minimal permissions** — Tool requests only what it needs
-5. **Audit trail** — All findings logged with timestamps
+- ✅ Test only systems they own or have explicit authorization to test
+- ✅ Follow responsible disclosure practices for any findings
+- ✅ Comply with all applicable laws and regulations
+- ❌ Never use findings for unauthorized access or data theft
+- ❌ Never target systems without written permission
 
-## Dependency Security
+## Acknowledgments
 
-We monitor dependencies via:
-- Dependabot alerts (enabled)
-- Regular `pip-audit` checks
-- Pinned dependency versions in `pyproject.toml`
+We appreciate security researchers who help improve this project. Contributors who responsibly disclose vulnerabilities will be credited in the CHANGELOG (unless they prefer anonymity).

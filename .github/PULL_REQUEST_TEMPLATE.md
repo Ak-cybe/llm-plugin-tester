@@ -1,27 +1,24 @@
-## Description
-Brief description of what this PR does.
+## What does this PR do?
 
-## Type
+<!-- Brief description of the change -->
+
+## Type of Change
+
 - [ ] 🐛 Bug fix
-- [ ] ✨ New feature / detector
-- [ ] 🧪 New payloads / tests
-- [ ] 📄 Documentation
-- [ ] 🔧 Refactor / maintenance
-
-## Changes
-- 
-
-## Testing
-- [ ] All existing tests pass (`pytest tests/ -v`)
-- [ ] New tests added for new functionality
-- [ ] Manually verified with example plugins
+- [ ] ✨ New feature
+- [ ] 💣 New attack payload / detector
+- [ ] 📝 Documentation
+- [ ] ♻️ Refactor
+- [ ] 🧪 Tests
 
 ## Checklist
-- [ ] Code follows project conventions
-- [ ] Type hints added for new functions
-- [ ] Docstrings added for public methods
-- [ ] CHANGELOG.md updated (if user-facing change)
-- [ ] No secrets or credentials in code
 
-## Related Issues
-Fixes #
+- [ ] Tests pass (`pytest tests/ -v`)
+- [ ] No new linting errors (`ruff check src/`)
+- [ ] Documentation updated (if applicable)
+- [ ] No secrets or credentials in code
+- [ ] Linked issue: Fixes #
+
+## How to Test
+
+<!-- Steps for reviewers to verify the change -->
